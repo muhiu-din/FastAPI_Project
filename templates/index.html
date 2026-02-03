@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notes Vault</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Inter", system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 40px;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 30px;
+    }
+
+    /* FORM */
+    .form-card {
+      max-width: 500px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .form-card input,
+    .form-card textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    textarea {
+      resize: none;
+      height: 100px;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #ff512f, #f09819);
+      color: white;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    /* NOTES */
+    .note-container {
+      margin-top: 50px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+    }
+
+    .note {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      position: relative;
+      transition: transform 0.3s;
+    }
+
+    .note:hover {
+      transform: translateY(-6px);
+    }
+
+    .note.important {
+      border-left: 6px solid #ff4b2b;
+    }
+
+    .note h3 {
+      margin: 0;
+      font-size: 20px;
+      color: #fff;
+    }
+
+    .note p {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #ddd;
+      line-height: 1.5;
+    }
+
+    .badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #ff4b2b;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>📝 Notes Vault</h1>
+
+  <!-- ADD NOTE -->
+  <div class="form-card">
+    <input id="title" type="text" placeholder="Note title" />
+    <textarea id="content" placeholder="Write your note..."></textarea>
+
+    <div class="checkbox">
+      <input type="checkbox" id="important" />
+      <label for="important">Mark as important</label>
+    </div>
+
+    <button onclick="submitNote()">Save Note</button>
+  </div>
+
+  <!-- NOTES -->
+  <div class="note-container">
+     {% if newDocs is not defined or newDocs|length == 0 %}
+      <h1>No notes to display</h1>
+      {% endif %}
+    {% for note in newDocs %}
+     
+      <div class="note {% if note.important %}important{% endif %}">
+        {% if note.important %}
+          <div class="badge">IMPORTANT</div>
+        {% endif %}
+        <h3>{{ note.title }}</h3>
+        <p>{{ note.content }}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+<script>
+  async function submitNote() {
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+    const important = document.getElementById("important").checked;
+
+    if (!title || !content) {
+      alert("Title & description required!");
+      return;
+    }
+
+    await fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, content, important })
+    });
+
+    window.location.reload();
+  }
+</script>
+
+</body>
+</html>
